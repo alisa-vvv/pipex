@@ -8,5 +8,5 @@ The program has to be executed by this:
 Which should produce behavior that is equivalent to running the following shell ocmmand:
 
 ```
-./pipex file1 cmd1 cmd2 file2
+ < file1 cmd1 | cmd2 > file2
 ```
