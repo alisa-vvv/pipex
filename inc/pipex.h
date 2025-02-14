@@ -18,5 +18,11 @@
 # include <unistd.h>
 //for open:
 # include <fcntl.h>
+//for perror:
+# include <stdio.h>
+//for errno:
+# include <errno.h>
+// for  strerror:
+# include <string.h>
 
 #endif
