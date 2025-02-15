@@ -25,4 +25,7 @@
 // for  strerror:
 # include <string.h>
 
+char	**find_env_path(void);
+int	try_execve(char **path_arr, char *const argv[]);
+
 #endif

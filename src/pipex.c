@@ -83,7 +83,7 @@ int	*setup_pipe(int fd_in, int fd_out)
 // then first child executes cmd2 and pipes the output to outfile
 // i think
 // do we need another pipe? I don't think so? maybe? feels like we shouldn't need one, we are coding a single pipe after all
-void	cmd2_process(const char *outfile_name, const char *cmd2, int fd_out)
+void	cmd1_process(const char *outfile_name, const char *cmd2, int fd_out)
 {
 	ft_printf("sweet child o mine (2)\n");
 	ft_printf("outfile name: %s\n", outfile_name);
@@ -91,7 +91,7 @@ void	cmd2_process(const char *outfile_name, const char *cmd2, int fd_out)
 	ft_printf("fd_out: %d\n", fd_out);
 }
 
-void	cmd1_process(const char *infile_name, const char *cmd1, int fd_in,
+void	cmd2_process(const char *infile_name, const char *cmd1, int fd_in,
 				  const char *outfile_name, const char *cmd2, int fd_out)
 {
 	pid_t	child2;
@@ -109,12 +109,12 @@ void	cmd1_process(const char *infile_name, const char *cmd1, int fd_in,
 	}
 	if (child2 == 0)
 	{
-		ft_printf ("this is the parent if child2, pipipe: %d\n", child2);
+		ft_printf("this should be child2 : %d\n", child2);
+		cmd1_process(outfile_name, cmd2, fd_out);
 	}
 	else
 	{
-		ft_printf("this should be child2 : %d\n", child2);
-		cmd2_process(outfile_name, cmd2, fd_out);
+		ft_printf ("this is the parent if child2, pipipe: %d\n", child2);
 	}
 }
 
@@ -129,8 +129,8 @@ int	main(int argc, char *argv[])
 	// we probably don't actually need the file names, just the fds
 	const char	*infile_name = argv[1];
 	const char	*outfile_name = argv[4];
-	const char	*cmd1 = argv[2];
-	const char	*cmd2 = argv[3];
+	//const char	*cmd1 = argv[2];
+	//const char	*cmd2 = argv[3];
 
 	//check that files are available
 	check_files(infile_name, outfile_name);
@@ -142,45 +142,39 @@ int	main(int argc, char *argv[])
 	int	*pipefd;
 	pipefd = setup_pipe(fd_in, fd_out);
 
-	pid_t	child1;
-
-	child1 = fork();
-	if (child1 < 0)
+	char **path_arr = find_env_path();
+	char *const command_argv[] = {"ls", "-l", NULL};
+	try_execve(path_arr, command_argv);
+	int i = -1;
+	if (path_arr)
 	{
-		perror("Fork: ");
-		exit (1);
+		while (path_arr[++i])
+			free(path_arr[i]);
+		free(path_arr);
 	}
-	if (child1 == 0)
-		ft_printf("this is parent of child1: %d\n", child1);
-	else
-	{
-		ft_printf("this is child1: %d\n", child1);
-		cmd1_process(infile_name, cmd1, fd_in, outfile_name, cmd2, fd_out);
-	}
-	// get content of input file
-	//const char *in_content = get_file_content(fd_in);
 
-	//ft_printf("file content: %s\n", in_content);
-	//ft_printf("Enviroment:\n");
-	//int i = 0;
-	//while (__environ[i])
+	//pid_t	child1;
+
+	//child1 = fork();
+	//if (child1 < 0)
 	//{
-	//	ft_printf("%d: %s\n", i, __environ[i]);
-	//	i++;
+	//	perror("Fork: ");
+	//	exit (1);
 	//}
+	//if (child1 == 0)
+	//{
+	//	ft_printf("this is child1: %d\n", child1);
+	//	cmd2_process(infile_name, cmd1, fd_in, outfile_name, cmd2, fd_out);
+	//}
+	//else
+	//	ft_printf("this is parent of child1: %d\n", child1);
 
-	//free((void *) in_content);
 	close(fd_in);
 	close(fd_out);
 	free(pipefd);
-	//read();
-	//perror();
-	//strerror();
 	//dup();
 	//dup2();
-	//execve();
 	//fork();
-	//pipe();
 	//unlink();
 	//wait();
 	//waitpid();
