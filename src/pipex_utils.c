@@ -54,6 +54,11 @@ int	try_execve(char **path_arr, char *const argv[])
 	i = 0;
 	// replace ft_strjoin with a local thing so you don't malloc twice for this
 	// also maybe split this into a "where"? and add access check
+	if (access(argv[0], F_OK) == 0)
+	{
+		execve(argv[0], argv, __environ);
+		return (0);
+	}
 	while (path_arr[i])
 	{
 		tmp_slash = ft_strjoin("/", argv[0]);
@@ -66,7 +71,7 @@ int	try_execve(char **path_arr, char *const argv[])
 		if (execve(command_path, argv, __environ) != -1)
 		{
 			free(command_path);
-			break;
+			return (0);
 		}
 		else
 			free(command_path);
