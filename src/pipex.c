@@ -1,9 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                       ::::::::             */
-/*   pipex.c                                           :+:    :+:             */
-/*                                                    +:+                     */
-/*   By: avaliull <avaliull@student.codam.nl>        +#+                      */
+/*   pipex.c                                           :+:    :+:             */ /*                                                    +:+                     */ /*   By: avaliull <avaliull@student.codam.nl>        +#+                      */
 /*                                                  +#+                       */
 /*   Created: 2025/02/13 18:11:38 by avaliull     #+#    #+#                  */
 /*   Updated: 2025/02/13 20:11:14 by avaliull     ########   odam.nl          */
@@ -11,6 +9,7 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include "sys/wait.h"
 //contains the environ variable
 #define _GNU_SOURCE
 
@@ -57,14 +56,11 @@ char	*get_file_content(int fd)
 	return (file_content);
 }
 
-int	*setup_pipe(int fd_in, int fd_out)
+int	*setup_pipe()
 {
 	int	*pipefd;
 
 	pipefd = (int *) malloc (sizeof (int) * 2);
-	pipefd[0] = fd_in;
-	pipefd[1] = fd_out;
-	ft_printf("pipefd before: %d, %d\n", pipefd[0], pipefd[1]);
 	if (pipe(pipefd) == -1)
 	{
 		ft_printf("%s\n", strerror(errno));
@@ -83,39 +79,51 @@ int	*setup_pipe(int fd_in, int fd_out)
 // then first child executes cmd2 and pipes the output to outfile
 // i think
 // do we need another pipe? I don't think so? maybe? feels like we shouldn't need one, we are coding a single pipe after all
-void	cmd1_process(const char *outfile_name, const char *cmd2, int fd_out)
+void	cmd2_process(char *const *command_argv, int *pipefd, int fd_out, char **path_arr)
 {
-	ft_printf("sweet child o mine (2)\n");
-	ft_printf("outfile name: %s\n", outfile_name);
-	ft_printf("cmd2: %s\n", cmd2);
-	ft_printf("fd_out: %d\n", fd_out);
+	close(pipefd[1]);
+	dup2(pipefd[0], STDIN_FILENO);
+	dup2(fd_out, STDOUT_FILENO);
+	try_execve(path_arr, command_argv);
 }
 
-void	cmd2_process(const char *infile_name, const char *cmd1, int fd_in,
-				  const char *outfile_name, const char *cmd2, int fd_out)
+void	cmd1_process(char *const *command_argv, int *pipefd, int fd_in, char **path_arr)
 {
-	pid_t	child2;
+	close(pipefd[0]);
+	dup2(fd_in, STDIN_FILENO);
+	dup2(pipefd[1], STDOUT_FILENO);
+	try_execve(path_arr, command_argv);
+}
 
-	ft_printf("sweet child o mine (1)\n");
-	ft_printf("infile name: %s\n", infile_name);
-	ft_printf("cmd1: %s\n", cmd1);
-	ft_printf("fd_in: %d\n", fd_in);
+void	pipex(char *const *command_argv, int *pipefd, int fd_in, int fd_out)
+{
+	char **path_arr = find_env_path();
+	int	fork_check;
 
-	child2 = fork();
-	if (child2 < 0)
-	{
-		perror("Fork: ");
-		exit (1);
-	}
-	if (child2 == 0)
-	{
-		ft_printf("this should be child2 : %d\n", child2);
-		cmd1_process(outfile_name, cmd2, fd_out);
-	}
+	//dup2(fd_in, pipefd[0]);
+	//dup2(fd_out, pipefd[1]);
+	fork_check = fork();
+	if (fork_check == -1)
+		ft_printf("fork error\n");
+	else if (fork_check == 0)
+		cmd1_process(command_argv, pipefd, fd_in, path_arr);
 	else
 	{
-		ft_printf ("this is the parent if child2, pipipe: %d\n", child2);
+		fork_check = fork();
+		if (fork_check == -1)
+			ft_printf("fork error\n");
+		else if (fork_check == 0)
+			cmd2_process(command_argv, pipefd, fd_out, path_arr);
+		wait(NULL);
 	}
+	int i = -1;
+	if (path_arr)
+	{
+		while (path_arr[++i])
+			free(path_arr[i]);
+		free(path_arr);
+	}
+	return ;
 }
 
 int	main(int argc, char *argv[])
@@ -129,8 +137,8 @@ int	main(int argc, char *argv[])
 	// we probably don't actually need the file names, just the fds
 	const char	*infile_name = argv[1];
 	const char	*outfile_name = argv[4];
-	//const char	*cmd1 = argv[2];
-	//const char	*cmd2 = argv[3];
+//	const char	*cmd1 = argv[2];
+//	const char	*cmd2 = argv[3];
 
 	//check that files are available
 	check_files(infile_name, outfile_name);
@@ -140,19 +148,10 @@ int	main(int argc, char *argv[])
 	const int fd_out = open(outfile_name, O_WRONLY);
 
 	int	*pipefd;
-	pipefd = setup_pipe(fd_in, fd_out);
+	pipefd = setup_pipe();
 
-	char **path_arr = find_env_path();
-	char *const command_argv[] = {"ls", "-l", NULL};
-	try_execve(path_arr, command_argv);
-	int i = -1;
-	if (path_arr)
-	{
-		while (path_arr[++i])
-			free(path_arr[i]);
-		free(path_arr);
-	}
-
+	char *const command_argv[] = {"cat", "-e", NULL};
+	pipex(command_argv, pipefd, fd_in, fd_out);
 	//pid_t	child1;
 
 	//child1 = fork();
@@ -171,7 +170,10 @@ int	main(int argc, char *argv[])
 
 	close(fd_in);
 	close(fd_out);
+	close(pipefd[0]);
+	close(pipefd[1]);
 	free(pipefd);
+	exit(0);
 	//dup();
 	//dup2();
 	//fork();
