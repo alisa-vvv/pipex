@@ -85,6 +85,7 @@ void	cmd2_process(char *const *command_argv, int *pipefd, int fd_out, char **pat
 	dup2(pipefd[0], STDIN_FILENO);
 	dup2(fd_out, STDOUT_FILENO);
 	try_execve(path_arr, command_argv);
+	exit (0);
 }
 
 void	cmd1_process(char *const *command_argv, int *pipefd, int fd_in, char **path_arr)
@@ -93,6 +94,7 @@ void	cmd1_process(char *const *command_argv, int *pipefd, int fd_in, char **path
 	dup2(fd_in, STDIN_FILENO);
 	dup2(pipefd[1], STDOUT_FILENO);
 	try_execve(path_arr, command_argv);
+	exit (0);
 }
 
 void	pipex(char *const *command_argv, int *pipefd, int fd_in, int fd_out)
