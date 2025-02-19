@@ -12,7 +12,7 @@
 
 #include "pipex.h"
 
-char	**find_env_path(void)
+const char	**find_env_path(void)
 {
 	int		i;
 	char	*path_var;
@@ -42,10 +42,10 @@ char	**find_env_path(void)
 	{
 		ft_printf("REPLACE THIS WITH PROPER ERROR HANDLING\n");
 	}
-	return (path_arr);
+	return ((const char**) path_arr);
 }
 
-int	try_execve(char **path_arr, char *const argv[])
+int	try_execve(const char **path_arr, char *const argv[])
 {
 	int		i;
 	char	*tmp_slash;
@@ -59,23 +59,24 @@ int	try_execve(char **path_arr, char *const argv[])
 		execve(argv[0], argv, __environ);
 		return (0);
 	}
+	tmp_slash = ft_strjoin("/", argv[0]);
 	while (path_arr[i])
 	{
-		tmp_slash = ft_strjoin("/", argv[0]);
 		if (!tmp_slash)
 			ft_printf("REPLACE THIS WITH PROPER ERROR HANDLING\n");
 		command_path = ft_strjoin(path_arr[i], tmp_slash);
 		if (!command_path)
 			ft_printf("REPLACE THIS WITH PROPER ERROR HANDLING\n");
-		free(tmp_slash);
 		if (execve(command_path, argv, __environ) != -1)
 		{
 			free(command_path);
+			free(tmp_slash);
 			return (0);
 		}
 		else
 			free(command_path);
 		i++;
 	}
+	free(tmp_slash);
 	return (-1);
 }

@@ -40,7 +40,7 @@ RM	= rm -f
 
 NAME	= pipex
 
-INPUT	= infile cmd1 cm2 outfile
+INPUT	= infile "head -n 2" "wc -l" outfile
 
 MAKEFLAGS	= -s
 
