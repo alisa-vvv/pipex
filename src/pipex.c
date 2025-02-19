@@ -36,11 +36,13 @@ int	*setup_pipe(void)
 	int	*pipefd;
 
 	pipefd = (int *) malloc (sizeof (int) * 2);
+	if (!pipefd)
+		return (NULL);
 	if (pipe(pipefd) == -1) {
 		ft_printf("%s\n", strerror(errno));
-		exit (1);
+		free(pipefd);
+		return (NULL);
 	}
-	ft_printf("pipefd after: %d, %d\n", pipefd[0], pipefd[1]);
 	return (pipefd);
 }
 
@@ -60,7 +62,8 @@ void	cmd1_process(char *const command_argv[], int *pipefd, int fd_in, const char
 	try_execve(path_arr, command_argv);
 }
 
-void	pipex(char *const cmd1[], char *const cmd2[], int *pipefd, const int io_fd[2])
+void	pipex(char *const cmd1[], char *const cmd2[],
+		   int *pipefd, const int io_fd[2])
 {
 	const char **path_arr = find_env_path();
 	int	fork_check;
@@ -89,26 +92,8 @@ void	pipex(char *const cmd1[], char *const cmd2[], int *pipefd, const int io_fd[
 	return ;
 }
 
-int	main(int argc, char *argv[])
+void	clean_exit(char *const *cmd1, char *const *cmd2, int *pipe_fd, int const io_fd[2])
 {
-	char *const	*cmd1 = ft_split(argv[2], ' ');
-	char *const	*cmd2 = ft_split(argv[3], ' ');
-	int const	io_fd[2] = {open(argv[1], O_RDONLY),
-		open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777)};
-	int			*pipefd;
-
-	if (argc != 5)
-	{
-		perror("Argument count not 4");
-		exit(1);
-	}
-
-	// we probablyt don't need this since open will check for erros
-	check_files(argv[1], argv[4]);
-
-	pipefd = setup_pipe();
-	pipex(cmd1, cmd2, pipefd, io_fd);
-
 	int	i;
 
 	i = -1;
@@ -127,14 +112,42 @@ int	main(int argc, char *argv[])
 	}
 	close(io_fd[0]);
 	close(io_fd[1]);
-	close(pipefd[0]);
-	close(pipefd[1]);
-	free(pipefd);
+	if (pipe_fd)
+	{
+		close(pipe_fd[0]);
+		close(pipe_fd[1]);
+		free(pipe_fd);
+	}
 	exit(0);
-	//dup();
-	//dup2();
-	//fork();
-	//unlink();
-	//wait();
-	//waitpid();
+}
+
+int	main(int argc, char *argv[])
+{
+	char *const	*cmd1 = ft_split(argv[2], ' ');
+	char *const	*cmd2 = ft_split(argv[3], ' ');
+	// this shouldn't be constant probably cause we need to check each error
+	// or add a wrapper for open (seems hard and dumb, probably don't. just typecast as const)
+	int const	io_fd[2] = {open(argv[1], O_RDONLY),
+		open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777)};
+	int			*pipe_fd;
+	
+	if (io_fd[0] < 0 || io_fd[1] < 0)
+	{
+		ft_printf("error on open (replace)\n");
+		clean_exit(cmd1, cmd2, NULL, io_fd);
+	}
+	if (argc != 5)
+	{
+		perror("Argument count not 4");
+		exit(1);
+	}
+
+	// we probablyt don't need this since open will check for erros
+	check_files(argv[1], argv[4]);
+
+	pipe_fd = setup_pipe();
+	if (!pipe_fd)
+		clean_exit(cmd1, cmd2, NULL, io_fd);
+	pipex(cmd1, cmd2, pipe_fd, io_fd);
+	clean_exit(cmd1, cmd2, pipe_fd, io_fd);
 }
