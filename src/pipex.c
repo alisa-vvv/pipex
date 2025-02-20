@@ -6,17 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>        +#+                      */
 /*                                                  +#+                       */
 /*   Created: 2025/02/19 14:51:28 by avaliull     #+#    #+#                  */
-/*   Updated: 2025/02/19 15:02:30 by avaliull     ########   odam.nl          */
-/*                                                                            */
-/* ************************************************************************** */
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                       ::::::::             */
-/*   pipex.c                                           :+:    :+:             */ /*                                                    +:+                     */ /*   By: avaliull <avaliull@student.codam.nl>        +#+                      */
-/*                                                  +#+                       */
-/*   Created: 2025/02/13 18:11:38 by avaliull     #+#    #+#                  */
-/*   Updated: 2025/02/13 20:11:14 by avaliull     ########   odam.nl          */
+/*   Updated: 2025/02/20 20:31:11 by avaliull     ########   odam.nl          */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +27,11 @@ int	cmd2_process(char *const command_argv[], const int pipe_fd[2],
 				  const int fd_out, const char **path_arr)
 {
 	if (close(pipe_fd[1]) < 0)
-		ft_printf("close err in cmd2\n");
+		perror("Close in cmd2 process");
 	if (dup2(pipe_fd[0], STDIN_FILENO) < 0)
-		ft_printf("stdin dup err in cmd2\n");
+		perror("dup2 pipe_fd[0]");
 	if (dup2(fd_out, STDOUT_FILENO) < 0)
-		ft_printf("stdout dup err in cmd2\n");
+		perror("dup2 fd_out");
 	try_execve(path_arr, command_argv);
 	return (0);
 }
@@ -52,9 +42,9 @@ int	cmd1_process(char *const command_argv[], const int pipe_fd[2],
 	if (close(pipe_fd[0]) < 0)
 		ft_printf("close err in cmd1\n");
 	if (dup2(fd_in, STDIN_FILENO) < 0)
-		ft_printf("stdin dup err in cmd1\n");
+		perror("dup2 fd_in");
 	if (dup2(pipe_fd[1], STDOUT_FILENO) < 0)
-		ft_printf("stdout err in cmd1\n");
+		perror("dup2 pipe_fd[1]");
 	try_execve(path_arr, command_argv);
 	return (0);
 }
@@ -149,28 +139,26 @@ int	*setup_pipe(void)
 
 int	main(int argc, char *argv[])
 {
-	// this shouldn't be constant probably cause we need to check each error
-	// or add a wrapper for open (seems hard and dumb, probably don't. just typecast as const)
 	int	io_fd[2];
 	int	*pipe_fd;
 
 	io_fd[0] = open(argv[1], O_RDONLY);
 	if (io_fd[0] < 0)
-		clean_exit(NULL, io_fd);
+	{
+		io_fd[0] = 0;
+		perror(argv[1]);
+	}
 	io_fd[1] = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (io_fd[1] < 0)
-		clean_exit(NULL, io_fd);
-	if (io_fd[0] < 0 || io_fd[1] < 0)
 	{
-		ft_printf("error on open (replace)\n");
-		clean_exit(NULL, io_fd);
+		io_fd[1] = 0;
+		perror(argv[4]);
 	}
 	if (argc != 5)
 	{
 		perror("Argument count not 4");
 		exit(1);
 	}
-
 	pipe_fd = setup_pipe();
 	if (!pipe_fd)
 		clean_exit(NULL, io_fd);

@@ -40,7 +40,7 @@ RM	= rm -f
 
 NAME	= pipex
 
-INPUT	= infile "head -n 2" "wc -l" outfile
+INPUT	= i "head -n 2" "cat" outfile
 
 MAKEFLAGS	= -s
 

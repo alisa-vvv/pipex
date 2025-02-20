@@ -1,4 +1,6 @@
 pipex
+infile
+outfile
 a.out
 main.c
 ./test_files/*
