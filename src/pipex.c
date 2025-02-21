@@ -26,6 +26,8 @@
 int	cmd2_process(char *const command_argv[], const int pipe_fd[2],
 				  const int fd_out, const char **path_arr)
 {
+	if (fd_out < 0)
+		return (-1);
 	if (close(pipe_fd[1]) < 0)
 		perror("Close in cmd2 process");
 	if (dup2(pipe_fd[0], STDIN_FILENO) < 0)
@@ -39,6 +41,8 @@ int	cmd2_process(char *const command_argv[], const int pipe_fd[2],
 int	cmd1_process(char *const command_argv[], const int pipe_fd[2],
 				  const int fd_in, const char **path_arr)
 {
+	if (fd_in < 0)
+		return (-1);
 	if (close(pipe_fd[0]) < 0)
 		ft_printf("close err in cmd1\n");
 	if (dup2(fd_in, STDIN_FILENO) < 0)
@@ -128,7 +132,7 @@ int	*setup_pipe(void)
 	pipefd = (int *) malloc (sizeof (int) * 2);
 	if (!pipefd)
 		return (NULL);
-	if (pipe(pipefd) == -1)
+	if (pipe(pipefd) < 0)
 	{
 		perror(strerror(errno));
 		free(pipefd);
@@ -142,26 +146,20 @@ int	main(int argc, char *argv[])
 	int	io_fd[2];
 	int	*pipe_fd;
 
+	pipe_fd = setup_pipe();
+	if (!pipe_fd)
+		clean_exit(NULL, io_fd);
 	io_fd[0] = open(argv[1], O_RDONLY);
 	if (io_fd[0] < 0)
-	{
-		io_fd[0] = 0;
 		perror(argv[1]);
-	}
 	io_fd[1] = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (io_fd[1] < 0)
-	{
-		io_fd[1] = 0;
 		perror(argv[4]);
-	}
 	if (argc != 5)
 	{
 		perror("Argument count not 4");
 		exit(1);
 	}
-	pipe_fd = setup_pipe();
-	if (!pipe_fd)
-		clean_exit(NULL, io_fd);
 	pipex((char *const[]){argv[2], argv[3]}, pipe_fd, io_fd);
 	clean_exit(pipe_fd, io_fd);
 }
