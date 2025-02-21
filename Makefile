@@ -6,18 +6,7 @@
 #    By: avaliull <avaliull@student.codam.nl>        +#+                       #
 #                                                   +#+                        #
 #    Created: 2025/02/21 20:02:30 by avaliull     #+#    #+#                   #
-#    Updated: 2025/02/21 20:05:18 by avaliull     ########   odam.nl           #
-#                                                                              #
-# **************************************************************************** #
-
-# **************************************************************************** # #
-#                                                         :::      ::::::::    #
-#    Makefile                                            :+:    :+:            #
-#                                                     +:+ +:+         +:+      #
-#    By: avaliull <avaliull@student.codam.nl>       +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/10/24 12:39:24 by avaliull          #+#    #+#              #
-#    Updated: 2025/01/07 19:48:57 by avaliull       ########   odam.nl         #
+#    Updated: 2025/02/21 20:42:20 by avaliull     ########   odam.nl           #
 #                                                                              #
 # **************************************************************************** #
 
@@ -52,7 +41,7 @@ RM	= rm -f
 
 NAME	= pipex
 
-INPUT	= infile "ls -l" "ls -l" outfile
+INPUT	= infile "cat" "wc -l" outfile
 
 MAKEFLAGS	= -s
 

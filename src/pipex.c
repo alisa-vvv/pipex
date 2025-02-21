@@ -110,7 +110,7 @@ int	pipex(char *const cmd_argv[2], const int pipe_fd[2], const int io_fd[2])
 	return (free_pipex(cmd1, cmd2, path_arr, perror_check));
 }
 
-void	clean_exit(int *pipe_fd, int const io_fd[2])
+void	clean_exit(int *pipe_fd, int const io_fd[2], int err_check)
 {
 	if (io_fd[0] > 0)
 		close(io_fd[0]);
@@ -122,7 +122,7 @@ void	clean_exit(int *pipe_fd, int const io_fd[2])
 		close(pipe_fd[1]);
 		free(pipe_fd);
 	}
-	exit(0);
+	exit(err_check);
 }
 
 int	*setup_pipe(void)
@@ -146,20 +146,20 @@ int	main(int argc, char *argv[])
 	int	io_fd[2];
 	int	*pipe_fd;
 
-	pipe_fd = setup_pipe();
-	if (!pipe_fd)
-		clean_exit(NULL, io_fd);
+	if (argc != 5)
+	{
+		perror("Argument count not 4");
+		exit(1);
+	}
 	io_fd[0] = open(argv[1], O_RDONLY);
 	if (io_fd[0] < 0)
 		perror(argv[1]);
 	io_fd[1] = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (io_fd[1] < 0)
 		perror(argv[4]);
-	if (argc != 5)
-	{
-		perror("Argument count not 4");
-		exit(1);
-	}
+	pipe_fd = setup_pipe();
+	if (!pipe_fd)
+		clean_exit(NULL, io_fd, EXIT_FAILURE);
 	pipex((char *const[]){argv[2], argv[3]}, pipe_fd, io_fd);
-	clean_exit(pipe_fd, io_fd);
+	clean_exit(pipe_fd, io_fd, EXIT_SUCCESS);
 }
