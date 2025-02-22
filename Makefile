@@ -12,6 +12,7 @@
 
 CFILES	=	pipex.c\
 			pipex_utils.c\
+			libfunc_wrappers.c\
 			test_funcs.c
 
 OBJDIR = obj
