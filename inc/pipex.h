@@ -10,22 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef	PIPEX_H
+#ifndef PIPEX_H
 # define PIPEX_H
 
 # include "ft_printf.h"
-//for close, access, read, execve, fork:
-# include <unistd.h>
-//for open:
-# include <fcntl.h>
-//for perror:
-# include <stdio.h>
-//for errno:
 # include <errno.h>
-// for  strerror:
 # include <string.h>
 
+# define _GNU_SOURCE
+# define MALLOC_ERR "malloc"
+# define DUP2_ERR "dup2"
+
 const char	**find_env_path(void);
-int			try_execve(const char **path_arr, char *const argv[]);
+char		*try_execve(const char **path_arr, char *const argv[]);
 
 #endif

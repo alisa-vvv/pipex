@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                       ::::::::             */
-/*   utils.c                                           :+:    :+:             */
+/*   pipex_utils.c                                     :+:    :+:             */
 /*                                                    +:+                     */
 /*   By: avaliull <avaliull@student.codam.nl>        +#+                      */
 /*                                                  +#+                       */
 /*   Created: 2025/02/15 13:05:22 by avaliull     #+#    #+#                  */
-/*   Updated: 2025/02/15 13:06:21 by avaliull     ########   odam.nl          */
+/*   Updated: 2025/02/22 14:09:47 by avaliull     ########   odam.nl          */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,57 +26,42 @@ const char	**find_env_path(void)
 		{
 			path_var = ft_strdup(&__environ[i][5]);
 			if (!path_var)
-			{
-				ft_printf("REPLACE THIS WITH PROPER ERROR HANDLING\n");
-			}
+				return (NULL);
 			break;
 		}
-	}
-	if (!path_var)
-	{
-		ft_printf("REPLACE THIS WITH PROPER ERROR HANDLING\n");
 	}
 	path_arr = ft_split(path_var, ':');
 	free(path_var);
 	if (!path_arr)
-	{
-		ft_printf("REPLACE THIS WITH PROPER ERROR HANDLING\n");
-	}
+		return (NULL);
 	return ((const char**) path_arr);
 }
 
-int	try_execve(const char **path_arr, char *const argv[])
+char	*try_execve(const char **path_arr, char *const argv[])
 {
-	int		i;
 	char	*tmp_slash;
 	char	*command_path;
 
-	i = 0;
-	// replace ft_strjoin with a local thing so you don't malloc twice for this
-	// also maybe split this into a "where"? and add access check
-	if (access(argv[0], F_OK) == 0)
-	{
-		execve(argv[0], argv, __environ);
-		return (0);
-	}
+	if (execve(argv[0], argv, __environ) != -1)
+		return (NULL);
 	tmp_slash = ft_strjoin("/", argv[0]);
-	while (path_arr[i])
+	if (!tmp_slash)
+		return ("malloc error");
+	while (path_arr)
 	{
-		if (!tmp_slash)
-			ft_printf("REPLACE THIS WITH PROPER ERROR HANDLING\n");
-		command_path = ft_strjoin(path_arr[i], tmp_slash);
+		command_path = ft_strjoin(path_arr[0], tmp_slash);
 		if (!command_path)
-			ft_printf("REPLACE THIS WITH PROPER ERROR HANDLING\n");
+			return ("malloc error");
 		if (execve(command_path, argv, __environ) != -1)
 		{
 			free(command_path);
 			free(tmp_slash);
-			return (0);
+			return (NULL);
 		}
 		else
 			free(command_path);
-		i++;
+		path_arr++;
 	}
 	free(tmp_slash);
-	return (-1);
+	return (strerror(errno));
 }

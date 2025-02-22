@@ -6,13 +6,17 @@
 /*   By: avaliull <avaliull@student.codam.nl>        +#+                      */
 /*                                                  +#+                       */
 /*   Created: 2025/02/19 14:51:28 by avaliull     #+#    #+#                  */
-/*   Updated: 2025/02/20 20:31:11 by avaliull     ########   odam.nl          */
+/*   Updated: 2025/02/22 14:22:54 by avaliull     ########   odam.nl          */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-#include "sys/wait.h"
-#define _GNU_SOURCE
+#include <sys/wait.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 //plan for error checking:
 //should have a clean_exit function that is called from main or pipex (they both have all the vars).
@@ -159,7 +163,10 @@ int	main(int argc, char *argv[])
 		perror(argv[4]);
 	pipe_fd = setup_pipe();
 	if (!pipe_fd)
+	{
+		perror(MALLOC_ERR);
 		clean_exit(NULL, io_fd, EXIT_FAILURE);
+	}
 	pipex((char *const[]){argv[2], argv[3]}, pipe_fd, io_fd);
 	clean_exit(pipe_fd, io_fd, EXIT_SUCCESS);
 }
