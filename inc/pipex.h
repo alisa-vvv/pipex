@@ -26,7 +26,7 @@
 
 const char	**find_env_path(void);
 char		*try_execve(const char **path_arr, char *const argv[]);
-int 		close_errcheck (int fd);
-int 		dup2_errcheck (int oldfd, int newfd);
+int			close_errcheck(int fd);
+int			dup2_errcheck(int oldfd, int newfd);
 
 #endif
