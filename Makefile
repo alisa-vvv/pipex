@@ -10,15 +10,15 @@
 #                                                                              #
 # **************************************************************************** #
 
+MAKEFLAGS	= -s
+
 CFILES	=	init_exit.c\
 			pipex.c\
 			pipex_utils.c\
 			libfunc_wrappers.c
 
 OBJDIR = obj
-
 SRCDIR = src
-
 SRCDIRS = $(SRCDIR)
 
 OFILES	= $(addprefix $(OBJDIR)/,$(CFILES:.c=.o))
@@ -26,25 +26,18 @@ OFILES	= $(addprefix $(OBJDIR)/,$(CFILES:.c=.o))
 VPATH	= $(INCLUDE) $(SRCDIRS)
 
 LIBFT_PRINTF	= $(SRCDIR)/libft_printf/libftprintf.a
-
 LIBFT_PRINTF_DIR = $(SRCDIR)/libft_printf
 
 INCLUDEFILES = pipex.h
-
-#INCLUDE = inc $(dir $(LIBFT_PRINTF))
 INCLUDE = inc $(LIBFT_PRINTF_DIR)
-
-CC	= cc
-
-CFLAGS	= -Wall -Wextra -Werror
-
-RM	= rm -f
 
 NAME	= pipex
 
-INPUT	= infile "ls -l" "cat -e" outfile
+RM	= rm -f
 
-MAKEFLAGS	= -s
+CC	= cc
+CFLAGS	= -Wall -Wextra -Werror
+INPUT	= infile "ls -l" "cat -e" outfile
 
 clangd:
 	$(MAKE) fclean
@@ -52,11 +45,8 @@ clangd:
 
 $(OBJDIR):
 	mkdir $@
-
 $(OBJDIR)/%.o: %.c $(INCLUDEFILES) | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@ $(addprefix -I,$(INCLUDE))
-
-all: $(NAME)
 
 $(LIBFT_PRINTF):
 	export CFLAGS
@@ -65,15 +55,12 @@ $(LIBFT_PRINTF):
 $(NAME): $(OFILES) $(LIBFT_PRINTF)
 	$(CC) $(CFLAGS) -o $@ $^ $(addprefix -I,$(INCLUDE))
 
+all: $(NAME)
+
 libs_clean:
 	$(MAKE) clean -C $(LIBFT_PRINTF_DIR)
-
-# this is for bonus
-# bonus: all
-
 clean: libs_clean
 	$(RM) $(OFILES)
-
 fclean:	clean
 	$(RM) $(NAME)
 
