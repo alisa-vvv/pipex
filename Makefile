@@ -10,10 +10,10 @@
 #                                                                              #
 # **************************************************************************** #
 
-CFILES	=	pipex.c\
+CFILES	=	init_exit.c\
+			pipex.c\
 			pipex_utils.c\
-			libfunc_wrappers.c\
-			test_funcs.c
+			libfunc_wrappers.c
 
 OBJDIR = obj
 
@@ -42,7 +42,7 @@ RM	= rm -f
 
 NAME	= pipex
 
-INPUT	= infile "ls -a" "cat -e" outfile
+INPUT	= infile "ls -l" "cat -e" outfile
 
 MAKEFLAGS	= -s
 

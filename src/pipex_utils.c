@@ -11,6 +11,10 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include "ft_printf.h"
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
 
 const char	**find_env_path(void)
 {
@@ -27,14 +31,14 @@ const char	**find_env_path(void)
 			path_var = ft_strdup(&__environ[i][5]);
 			if (!path_var)
 				return (NULL);
-			break;
+			break ;
 		}
 	}
 	path_arr = ft_split(path_var, ':');
 	free(path_var);
 	if (!path_arr)
 		return (NULL);
-	return ((const char**) path_arr);
+	return ((const char **) path_arr);
 }
 
 char	*try_execve(const char **path_arr, char *const argv[])

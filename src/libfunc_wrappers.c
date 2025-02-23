@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-int dup2_errcheck (int oldfd, int newfd)
+int	dup2_errcheck(int oldfd, int newfd)
 {
 	if (dup2(oldfd, newfd) < 0)
 	{
@@ -24,7 +24,7 @@ int dup2_errcheck (int oldfd, int newfd)
 	return (0);
 }
 
-int close_errcheck (int fd)
+int	close_errcheck(int fd)
 {
 	if (close(fd) < 0)
 	{
