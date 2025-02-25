@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>        +#+                      */
 /*                                                  +#+                       */
 /*   Created: 2025/02/15 13:05:22 by avaliull     #+#    #+#                  */
-/*   Updated: 2025/02/22 14:09:47 by avaliull     ########   odam.nl          */
+/*   Updated: 2025/02/25 19:26:07 by avaliull     ########   odam.nl          */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,26 +19,20 @@
 const char	**find_env_path(void)
 {
 	int		i;
-	char	*path_var;
 	char	**path_arr;
 
 	i = -1;
-	path_var = NULL;
 	while (__environ[++i])
 	{
 		if (ft_strncmp(__environ[i], "PATH", 4) == 0)
 		{
-			path_var = ft_strdup(&__environ[i][5]);
-			if (!path_var)
+			path_arr = ft_split(&__environ[i][5], ':');
+			if (!path_arr)
 				return (NULL);
-			break ;
+			return ((const char **) path_arr);
 		}
 	}
-	path_arr = ft_split(path_var, ':');
-	free(path_var);
-	if (!path_arr)
-		return (NULL);
-	return ((const char **) path_arr);
+	return (NULL);
 }
 
 char	*try_execve(const char **path_arr, char *const argv[])
@@ -51,7 +45,7 @@ char	*try_execve(const char **path_arr, char *const argv[])
 	tmp_slash = ft_strjoin("/", argv[0]);
 	if (!tmp_slash)
 		return ("malloc error");
-	while (path_arr)
+	while (path_arr[0])
 	{
 		command_path = ft_strjoin(path_arr[0], tmp_slash);
 		if (!command_path)
