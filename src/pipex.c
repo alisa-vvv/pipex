@@ -26,6 +26,7 @@ char	*cmd2_process(char *const command_argv[], const char **path_arr,
 	const int	fd_out = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	char		*result;
 
+	close_errcheck(pipe_fd[1]);
 	if (fd_out < 0)
 	{
 		perror(outfile);
@@ -33,11 +34,8 @@ char	*cmd2_process(char *const command_argv[], const char **path_arr,
 	}
 	dup2_errcheck(pipe_fd[0], STDIN_FILENO);
 	dup2_errcheck(fd_out, STDOUT_FILENO);
-	close_errcheck(pipe_fd[1]);
-	ft_printf("whyyyy\n");
 	result = try_execve(path_arr, command_argv);
 	close(pipe_fd[0]);
-	close(fd_out);
 	return (result);
 }
 
@@ -47,6 +45,7 @@ char	*cmd1_process(char *const command_argv[], const char **path_arr,
 	const int	fd_in = open(infile, O_RDONLY);
 	char		*result;
 
+	close_errcheck(pipe_fd[0]);
 	if (fd_in < 0)
 	{
 		perror(infile);
@@ -54,10 +53,8 @@ char	*cmd1_process(char *const command_argv[], const char **path_arr,
 	}
 	dup2_errcheck(fd_in, STDIN_FILENO);
 	dup2_errcheck(pipe_fd[1], STDOUT_FILENO);
-	close_errcheck(pipe_fd[0]);
 	result = try_execve(path_arr, command_argv);
 	close(pipe_fd[1]);
-	close(fd_in);
 	return (result);
 }
 
@@ -97,7 +94,6 @@ char	*pipex(char *const cmd_argv[2], char *const files_argv[2],
 	char *const	*cmd1 = ft_split(cmd_argv[0], ' ');
 	char *const	*cmd2 = ft_split(cmd_argv[1], ' ');
 	int			fork_check;
-	int			fork_check2;
 	char		*perror_check;
 
 	if (!cmd1 || !cmd2 || !path_arr)
@@ -108,20 +104,20 @@ char	*pipex(char *const cmd_argv[2], char *const files_argv[2],
 		return (free_pipex(cmd1, cmd2, path_arr, FORK_ERR));
 	else if (fork_check == 0)
 		perror_check = cmd1_process(cmd1, path_arr, pipe_fd, files_argv[0]);
-		//perror_check = cmd2_process(cmd2, path_arr, pipe_fd, files_argv[1]);
 	else
 	{
-		fork_check2 = fork();
-		if (fork_check2 == -1)
+		fork_check = fork();
+		if (fork_check == -1)
 			return (free_pipex(cmd1, cmd2, path_arr, FORK_ERR));
-		else if (fork_check2 == 0)
+		else if (fork_check == 0)
 			perror_check = cmd2_process(cmd2, path_arr, pipe_fd, files_argv[1]);
 		else
 		{
-			ft_printf("process 1: %d\n", fork_check);
-			ft_printf("process 2: %d\n", fork_check2);
-			while (errno != ECHILD)
-				ft_printf("crying: %d\n", waitpid(0, NULL, 0));
+			close(pipe_fd[0]);
+			close(pipe_fd[1]);
+			while (waitpid(-1, NULL, 0) > 0)
+			{
+			}
 		}
 	}
 	return (free_pipex(cmd1, cmd2, path_arr, perror_check));

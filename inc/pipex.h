@@ -18,6 +18,7 @@
 # define CLOSE_ERR "close"
 # define FORK_ERR "fork"
 # define FD_ERR "invalid fd"
+# define EXECVE_ERR "execve"
 
 char	*pipex(char *const cmd_argv[2], char *const files_argv[2],
 			const int pipe_fd[2]);

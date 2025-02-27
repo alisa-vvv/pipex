@@ -6,7 +6,7 @@
 #    By: avaliull <avaliull@student.codam.nl>        +#+                       #
 #                                                   +#+                        #
 #    Created: 2025/02/21 20:02:30 by avaliull     #+#    #+#                   #
-#    Updated: 2025/02/27 18:36:30 by avaliull     ########   odam.nl           #
+#    Updated: 2025/02/27 22:50:29 by avaliull     ########   odam.nl           #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,7 @@ RM	= rm -f
 
 CC	= cc
 CFLAGS	= -Wall -Wextra -Werror
-INPUT	= infile "ls -l" "wc -l" outfile
+INPUT	= infile "ls -l" "cat -e" outfile
 
 clangd:
 	$(MAKE) fclean

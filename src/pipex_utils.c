@@ -44,24 +44,22 @@ char	*try_execve(const char **path_arr, char *const argv[])
 		return (NULL);
 	tmp_slash = ft_strjoin("/", argv[0]);
 	if (!tmp_slash)
-		return ("malloc error");
+		return ("MALLOC_ERR");
 	while (path_arr[0])
 	{
-		ft_printf("here?\n");
 		command_path = ft_strjoin(path_arr[0], tmp_slash);
 		if (!command_path)
-			return ("malloc error");
-		if (execve(command_path, argv, __environ) != -1)
+			return ("MALLOC_ERR");
+		if (execve(command_path, argv, __environ) == -1)
+			free(command_path);
+		else
 		{
 			free(command_path);
 			free(tmp_slash);
-			ft_printf("do we return?\n");
 			return (NULL);
 		}
-		else
-			free(command_path);
 		path_arr++;
 	}
 	free(tmp_slash);
-	return (strerror(errno));
+	return (EXECVE_ERR);
 }
