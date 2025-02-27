@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <errno.h>
 
 char	*cmd2_process(char *const command_argv[], const char **path_arr,
 						const int pipe_fd[2], const int fd_out)
@@ -86,15 +87,16 @@ char	*pipex(char *const cmd_argv[2],
 	if (fork_check == -1)
 		return (free_pipex(cmd1, cmd2, path_arr, FORK_ERR));
 	else if (fork_check == 0)
-		perror_check = cmd1_process(cmd1, path_arr, pipe_fd, io_fd[0]);
+		perror_check = cmd2_process(cmd2, path_arr, pipe_fd, io_fd[1]);
 	else
 	{
 		fork_check = fork();
 		if (fork_check == -1)
 			return (free_pipex(cmd1, cmd2, path_arr, FORK_ERR));
 		else if (fork_check == 0)
-			perror_check = cmd2_process(cmd2, path_arr, pipe_fd, io_fd[1]);
-		wait(NULL);
+			perror_check = cmd1_process(cmd1, path_arr, pipe_fd, io_fd[0]);
+		while (errno != ECHILD)
+			ft_printf("wtf: %d\n", waitpid(0, NULL, 0));
 	}
 	return (free_pipex(cmd1, cmd2, path_arr, perror_check));
 }
