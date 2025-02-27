@@ -47,6 +47,7 @@ char	*try_execve(const char **path_arr, char *const argv[])
 		return ("malloc error");
 	while (path_arr[0])
 	{
+		ft_printf("here?\n");
 		command_path = ft_strjoin(path_arr[0], tmp_slash);
 		if (!command_path)
 			return ("malloc error");
@@ -54,6 +55,7 @@ char	*try_execve(const char **path_arr, char *const argv[])
 		{
 			free(command_path);
 			free(tmp_slash);
+			ft_printf("do we return?\n");
 			return (NULL);
 		}
 		else
