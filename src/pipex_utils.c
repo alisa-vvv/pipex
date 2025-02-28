@@ -25,8 +25,8 @@ void	free_string_array(char **arr)
 	{
 		i = -1;
 		while (arr[++i])
-			free((void *)(arr[i]));
-		free((void *) arr);
+			free((arr[i]));
+		free(arr);
 	}
 }
 
@@ -36,27 +36,24 @@ char	**find_env_path(void)
 	char	**path_arr;
 
 	i = -1;
+	path_arr = NULL;
 	while (__environ[++i])
 	{
 		if (ft_strncmp(__environ[i], "PATH", 4) == 0)
-		{
 			path_arr = ft_split(&__environ[i][5], ':');
-			if (!path_arr)
-				return (NULL);
-			return (path_arr);
-		}
 	}
-	return (NULL);
+	if (!path_arr)
+		return (NULL);
+	return (path_arr);
 }
 
 static int	perror_return(char *err_msg)
 {
-	strerror(errno);
 	perror(err_msg);
 	return (errno);
 }
 
-int try_execve(const char **path_arr, char *const argv[])
+int try_execve(const char **path, char *const argv[])
 {
 	char	*tmp_slash;
 	char	*command_path;
@@ -66,9 +63,9 @@ int try_execve(const char **path_arr, char *const argv[])
 	tmp_slash = ft_strjoin("/", argv[0]);
 	if (!tmp_slash)
 		return (perror_return(MALLOC_ERR));
-	while (path_arr[0])
+	while (path[0])
 	{
-		command_path = ft_strjoin(path_arr[0], tmp_slash);
+		command_path = ft_strjoin(path[0], tmp_slash);
 		if (!command_path)
 			return (perror_return(MALLOC_ERR));
 		if (execve(command_path, argv, __environ) == -1)
@@ -79,7 +76,7 @@ int try_execve(const char **path_arr, char *const argv[])
 			free(tmp_slash);
 			return (0);
 		}
-		path_arr++;
+		path++;
 	}
 	free(tmp_slash);
 	return (perror_return(argv[0]));

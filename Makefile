@@ -37,7 +37,7 @@ RM	= rm -f
 
 CC	= cc
 CFLAGS	= -Wall -Wextra -Werror
-INPUT	= infile "adksaj" "wc -l" outfile
+INPUT	= infile "ls -l" "cat -e" outfile
 
 clangd:
 	$(MAKE) fclean

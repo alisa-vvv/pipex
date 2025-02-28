@@ -34,7 +34,7 @@ void	exit_child(int fds[3], char **cmd_arr, char **path_arr, int status)
 }
 
 void	cmd2_process(char *const cmd_argv[2], char **path,
-						const int pipe_fd[2], char *outfile)
+						const int pipe_fd[2], const char *outfile)
 {
 	const int	fd_out = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	char		**cmd2;
@@ -61,7 +61,7 @@ void	cmd2_process(char *const cmd_argv[2], char **path,
 }
 
 void	cmd1_process(char *const cmd_argv[2], char **path_arr,
-						const int pipe_fd[2], char *infile)
+						const int pipe_fd[2], const char *infile)
 {
 	const int	fd_in = open(infile, O_RDONLY);
 	int			err;
