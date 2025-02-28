@@ -15,15 +15,18 @@
 
 # define MALLOC_ERR "malloc"
 # define DUP2_ERR "dup2"
-# define CLOSE_ERR "close"
 # define FORK_ERR "fork"
+# define PIPE_ERR "pipe"
 # define FD_ERR "invalid fd"
-# define EXECVE_ERR "execve"
 
-int		pipex(char *const cmd_argv[2], char *const files_argv[2],
-			const int pipe_fd[2]);
+/*	Forking	*/
+int		read_fork(char *const cmd_argv[2], char *const files_argv[2],
+			const int pipe_fd[2], char **path_arr);
+int		write_fork(char *const cmd_argv[2], char *const files_argv[2],
+			const int pipe_fd[2], char **path_arr);
+/*	Utils	*/
 char	**find_env_path(void);
-int 	try_execve(const char **path_arr, char *const argv[]);
+int		try_execve(const char **path_arr, char *const argv[]);
 int		close_errcheck(int fd);
 int		dup2_errcheck(int oldfd, int newfd);
 void	free_string_array(char **arr);

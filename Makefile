@@ -12,10 +12,9 @@
 
 MAKEFLAGS	= -s
 
-CFILES	=	init_exit.c\
-			pipex.c\
+CFILES	=	pipex.c\
 			pipex_utils.c\
-			libfunc_wrappers.c
+			kindergarten.c\
 
 OBJDIR = obj
 SRCDIR = src

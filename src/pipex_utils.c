@@ -17,6 +17,16 @@
 #include <errno.h>
 #include <stdio.h>
 
+int	dup2_errcheck(int oldfd, int newfd)
+{
+	if (dup2(oldfd, newfd) < 0)
+	{
+		perror(DUP2_ERR);
+		return (-1);
+	}
+	return (0);
+}
+
 void	free_string_array(char **arr)
 {
 	int	i;
@@ -53,7 +63,7 @@ static int	perror_return(char *err_msg)
 	return (errno);
 }
 
-int try_execve(const char **path, char *const argv[])
+int	try_execve(const char **path, char *const argv[])
 {
 	char	*tmp_slash;
 	char	*command_path;
