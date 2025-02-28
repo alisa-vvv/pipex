@@ -37,7 +37,7 @@ RM	= rm -f
 
 CC	= cc
 CFLAGS	= -Wall -Wextra -Werror
-INPUT	= infile "ls -l" "cat -e" outfile
+INPUT	= infile "adksaj" "wc -l" outfile
 
 clangd:
 	$(MAKE) fclean
@@ -76,6 +76,7 @@ test:	$(NAME)
 	./$< $(INPUT)
 
 leak:	debug
-	valgrind -s --leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
+	valgrind -s --leak-check=full --show-leak-kinds=all \
+	--track-fds=yes --trace-children=yes ./$(NAME) $(INPUT)
 
 .PHONY:	clangd all clean fclean re libs_clean test leak debug gdb

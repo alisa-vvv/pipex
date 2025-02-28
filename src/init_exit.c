@@ -6,7 +6,7 @@
 /*   By: avaliull <avaliull@student.codam.nl>        +#+                      */
 /*                                                  +#+                       */
 /*   Created: 2025/02/23 12:27:48 by avaliull     #+#    #+#                  */
-/*   Updated: 2025/02/27 18:20:11 by avaliull     ########   odam.nl          */
+/*   Updated: 2025/02/28 13:23:42 by avaliull     ########   odam.nl          */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ void	clean_exit(int *pipe_fd, const int err_check)
 
 int	main(int argc, char *argv[])
 {
-	int		pipe_fd[2];
-	char	*pipex_errcheck;
+	int	pipe_fd[2];
+	int	pipex_errcheck;
 
 	if (argc != 5)
 	{
@@ -45,11 +45,6 @@ int	main(int argc, char *argv[])
 		clean_exit(NULL, EXIT_FAILURE);
 	}
 	pipex_errcheck = pipex((char *const [2]){argv[2], argv[3]},
-						(char *const [2]){argv[1], argv[4]}, pipe_fd);
-	if (pipex_errcheck)
-	{
-		perror(pipex_errcheck);
-		clean_exit(pipe_fd, EXIT_FAILURE);
-	}
-	clean_exit(pipe_fd, EXIT_SUCCESS);
+			(char *const [2]){argv[1], argv[4]}, pipe_fd);
+	clean_exit(pipe_fd, pipex_errcheck);
 }
