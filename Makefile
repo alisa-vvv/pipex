@@ -76,6 +76,6 @@ test:	$(NAME)
 
 leak:	debug
 	valgrind -s --leak-check=full --show-leak-kinds=all \
-	--track-fds=yes --trace-children=yes ./$(NAME) $(INPUT)
+	--track-fds=yes ./$(NAME) $(INPUT)
 
 .PHONY:	clangd all clean fclean re libs_clean test leak debug gdb
