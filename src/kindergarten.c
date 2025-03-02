@@ -52,8 +52,8 @@ static void	cmd2_process(char *const cmd_argv[2], char **path,
 		perror(MALLOC_ERR);
 		exit_child((int []){pipe_fd[0], pipe_fd[1], fd_out}, NULL, path, errno);
 	}
-	dup2_errcheck(pipe_fd[0], STDIN_FILENO);
-	dup2_errcheck(fd_out, STDOUT_FILENO);
+	dup2(pipe_fd[0], STDIN_FILENO);
+	dup2(fd_out, STDOUT_FILENO);
 	close(pipe_fd[0]);
 	close(fd_out);
 	err = try_execve((const char **) path, cmd2);
@@ -79,15 +79,15 @@ static void	cmd1_process(char *const cmd_argv[2], char **path_arr,
 		perror(MALLOC_ERR);
 		exit_child((int []){pipe_fd[0], pipe_fd[1], fd_in}, NULL, path_arr, 1);
 	}
-	dup2_errcheck(fd_in, STDIN_FILENO);
-	dup2_errcheck(pipe_fd[1], STDOUT_FILENO);
+	dup2(fd_in, STDIN_FILENO);
+	dup2(pipe_fd[1], STDOUT_FILENO);
 	close(pipe_fd[1]);
 	close(fd_in);
 	err = try_execve((const char **) path_arr, cmd1);
 	exit_child((int []){pipe_fd[0], pipe_fd[1], fd_in}, cmd1, path_arr, err);
 }
 
-int	write_fork(char *const cmd_argv[2], char *const files_argv[2],
+pid_t	write_fork(char *const cmd_argv[2], char *const files_argv[2],
 						const int pipe_fd[2], char **path_arr)
 {
 	int	fork_check;
@@ -100,7 +100,7 @@ int	write_fork(char *const cmd_argv[2], char *const files_argv[2],
 	return (fork_check);
 }
 
-int	read_fork(char *const cmd_argv[2], char *const files_argv[2],
+pid_t	read_fork(char *const cmd_argv[2], char *const files_argv[2],
 						const int pipe_fd[2], char **path_arr)
 {
 	int		fork_check;

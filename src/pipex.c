@@ -20,8 +20,10 @@
 #include <string.h>
 #include <errno.h>
 
-void	parent_exit(int *pipe_fd, const int err_check)
+void	exit_parent(const int pipe_fd[2], const int err_check, char **path)
 {
+	if (path)
+		free_string_array(path);
 	if (pipe_fd)
 	{
 		close(pipe_fd[0]);
@@ -30,41 +32,38 @@ void	parent_exit(int *pipe_fd, const int err_check)
 	exit(err_check);
 }
 
-int	pipex(char *const cmd_argv[2], char *const files_argv[2],
+void	pipex(char *const cmd_argv[2], char *const files_argv[2],
 			const int pipe_fd[2])
 {
 	char	**path_arr;
-	pid_t	child_error_check;
+	pid_t	child1_error;
+	pid_t	child2_error;
+	int		err_check;
 	int		status;
 
 	path_arr = find_env_path();
 	if (!path_arr)
 	{
 		perror(MALLOC_ERR);
-		free_string_array(path_arr);
-		return (errno);
+		exit_parent(pipe_fd, errno, path_arr);
 	}
-	child_error_check = read_fork(cmd_argv, files_argv, pipe_fd, path_arr);
-	if (child_error_check > 0)
-		child_error_check = write_fork(cmd_argv, files_argv, pipe_fd, path_arr);
+	child1_error = read_fork(cmd_argv, files_argv, pipe_fd, path_arr);
+	child2_error = write_fork(cmd_argv, files_argv, pipe_fd, path_arr);
 	close(pipe_fd[0]);
 	close(pipe_fd[1]);
-	if (child_error_check > 0)
-		child_error_check = 0;
+	err_check = errno * (child1_error < 0 || child2_error < 0);
 	while (waitpid(-1, &status, 0) > 0)
 	{
 		if (WIFEXITED(status))
 			if (WEXITSTATUS(status) != 0)
-				child_error_check = WEXITSTATUS(status);
+				err_check = WEXITSTATUS(status);
 	}
-	free_string_array(path_arr);
-	return (child_error_check);
+	exit_parent(NULL, err_check, path_arr);
 }
 
 int	main(int argc, char *argv[])
 {
 	int	pipe_fd[2];
-	int	pipex_errcheck;
 
 	if (argc != 5)
 	{
@@ -74,9 +73,8 @@ int	main(int argc, char *argv[])
 	if (pipe(pipe_fd) < 0)
 	{
 		perror(PIPE_ERR);
-		parent_exit(NULL, errno);
+		exit_parent(NULL, errno, NULL);
 	}
-	pipex_errcheck = pipex((char *const [2]){argv[2], argv[3]},
-			(char *const [2]){argv[1], argv[4]}, pipe_fd);
-	parent_exit(pipe_fd, pipex_errcheck);
+	pipex((char *const [2]){argv[2], argv[3]},
+		(char *const [2]){argv[1], argv[4]}, pipe_fd);
 }

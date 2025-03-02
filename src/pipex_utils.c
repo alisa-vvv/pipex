@@ -13,32 +13,8 @@
 #include "pipex.h"
 #include "ft_printf.h"
 #include <unistd.h>
-#include <string.h>
 #include <errno.h>
 #include <stdio.h>
-
-int	dup2_errcheck(int oldfd, int newfd)
-{
-	if (dup2(oldfd, newfd) < 0)
-	{
-		perror(DUP2_ERR);
-		return (-1);
-	}
-	return (0);
-}
-
-void	free_string_array(char **arr)
-{
-	int	i;
-
-	if (arr)
-	{
-		i = -1;
-		while (arr[++i])
-			free((arr[i]));
-		free(arr);
-	}
-}
 
 char	**find_env_path(void)
 {
@@ -55,6 +31,19 @@ char	**find_env_path(void)
 	if (!path_arr)
 		return (NULL);
 	return (path_arr);
+}
+
+void	free_string_array(char **arr)
+{
+	int	i;
+
+	if (arr)
+	{
+		i = -1;
+		while (arr[++i])
+			free((arr[i]));
+		free(arr);
+	}
 }
 
 static int	perror_return(char *err_msg)
