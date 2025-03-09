@@ -3,7 +3,7 @@ This is a simple project with the goal of recreating the following bash command 
 ```
 infile < command1 | command2 > outfile
 ```
-For example, running a project like this:
+For example, running the project executable like this:
 ```
 ./pipex infile "cat" "wc -l" outfile
 ```
