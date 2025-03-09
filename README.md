@@ -11,7 +11,7 @@ Should produce results equivalent to the following shell commands:
 ```
 < infile cat | wc -l > outfile
 ```
-For this project, the list of allowed fnctions includes any pritnf variant written by me, and reactiations of functions from the standard C library written by me (in this case libft).
+For this project, the list of allowed fnctions includes any pritnf variant written by me, reactiations of functions from the standard C library written by me (in this case libft), and the following:
 ```
 open, close, read, write,
 malloc, free, perror,
